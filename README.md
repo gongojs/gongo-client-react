@@ -23,3 +23,33 @@ function App() {
 }
 
 ```
+
+## Hooks
+
+### useGongoLive( funcThatReturnsACursor )
+
+LiveQuery on a result set, returns an array.
+
+Example:
+
+```js
+const data = useGongoLive( () => db.collection('test').find() );
+```
+
+### useGongoOne( funcThatReturnsACursor )
+
+LiveQuery for a single result.
+
+Example:
+
+```js
+const user = useGongoOne( () => db.collection('users').find({ _id: userId }) );
+```
+
+### useGongoUserId(db)
+
+LiveQuery on current userId... non-null if user is logged in.
+
+```js
+const userId = useGongoUserId(db);
+```

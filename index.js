@@ -3,25 +3,19 @@ const { Log, debounce } = require('gongo-client/lib/utils');
 
 const log = new Log('gongo-react');
 
-function useGongoOne(origCursorFunc, opts = {}) {
-  if (opts.debounce === undefined) opts.debounce = 50;
-
+function useGongoOne(origCursorFunc, opts) {
   const cursorFunc = () => origCursorFunc().limit(1);
   const data = useGongoLive(cursorFunc, opts);
   return data[0];
 }
 
-function useGongoUserId(db, opts = {}) {
-  if (opts.debounce === undefined) opts.debounce = 50;
-
+function useGongoUserId(db, opts) {
   const cursorFunc = () => db.gongoStore.find({_id: 'auth'}).limit(1);
   const data = useGongoLive(cursorFunc, opts);
   return data[0] && data[0].userId;
 }
 
 function useGongoLive(cursorFunc, opts = {}) {
-  if (opts.debounce === undefined) opts.debounce = 50;
-
   if (typeof cursorFunc !== 'function')
     throw new Error("useGongoLive expects a function that returns a cursor, "
       + "not " + JSON.stringify(cursorFunc));
@@ -50,7 +44,7 @@ function useGongoLive(cursorFunc, opts = {}) {
   const data = cursor.watch(change => {
     log.debug('useGongoLive change', change);
     setData(cursor.toArraySync())
-  });
+  }, { debounce: opts.debounce });
 
   return data;
 

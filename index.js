@@ -3,6 +3,22 @@ const { Log, debounce } = require('gongo-client/lib/utils');
 
 const log = new Log('gongo-react');
 
+function useGongoOne(origCursorFunc, opts = {}) {
+  if (opts.debounce === undefined) opts.debounce = 50;
+
+  const cursorFunc = () => origCursorFunc().limit(1);
+  const data = useGongoLive(cursorFunc, opts);
+  return data[0];
+}
+
+function useGongoUserId(db, opts = {}) {
+  if (opts.debounce === undefined) opts.debounce = 50;
+
+  const cursorFunc = () => db.gongoStore.find({_id: 'auth'}).limit(1);
+  const data = useGongoLive(cursorFunc, opts);
+  return data[0] && data[0].userId;
+}
+
 function useGongoLive(cursorFunc, opts = {}) {
   if (opts.debounce === undefined) opts.debounce = 50;
 
@@ -66,4 +82,10 @@ function useGongoSub(gongo, name, opts) {
   return isReady;
 }
 
-module.exports = { __esModule: true, useGongoLive, useGongoSub };
+module.exports = {
+  __esModule: true,
+  useGongoLive,
+  useGongoOne,
+  useGongoSub,
+  useGongoUserId,
+};

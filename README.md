@@ -8,7 +8,6 @@ Copyright(c) 2020 by Gadi Cohen <dragon@wastelands.net>.  MIT licensed.
 
 ```js
 import React from 'react';
-import db from 'gongo-client';
 import { useGongoLive } from 'gongo-react';
 
 function App() {
@@ -33,7 +32,7 @@ LiveQuery on a result set, returns an array.
 Example:
 
 ```js
-const data = useGongoLive( () => db.collection('test').find() );
+const data = useGongoLive( db => db.collection('test').find() );
 ```
 
 ### useGongoOne( funcThatReturnsACursor )
@@ -43,13 +42,16 @@ LiveQuery for a single result.
 Example:
 
 ```js
-const user = useGongoOne( () => db.collection('users').find({ _id: userId }) );
+const user = useGongoOne( db => db.collection('users').find({ _id: userId }) );
 ```
 
-### useGongoUserId(db)
+### useGongoUserId()
 
 LiveQuery on current userId... non-null if user is logged in.
 
 ```js
-const userId = useGongoUserId(db);
+// const opts = {
+//   db: force a specific database
+// };
+const userId = useGongoUserId(/* opts */);
 ```

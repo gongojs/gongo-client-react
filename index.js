@@ -1,5 +1,5 @@
 const { useGongoLive, useGongoOne, useGongoUserId } = require('./liveQueries');
-const { useGongoSub, useGongoIsPopulated } = require('./subscriptions');
+const { useGongoSub, useGongoIsPopulated, IsPopulated } = require('./subscriptions');
 const db = require('gongo-client');
 
 module.exports = {
@@ -12,4 +12,5 @@ module.exports = {
 
   useGongoSub,
   useGongoIsPopulated,
+  IsPopulated,
 };

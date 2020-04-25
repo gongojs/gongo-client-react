@@ -24,25 +24,15 @@ function useGongoLive(origCursorFunc, opts = {}) {
   // This part will only get run once on mount
 
   const cursor = cursorOrResults;
-  debug('useGongoLive cursor', cursor);
+  debug('useGongoLive ' + cursor.collection.name, JSON.stringify(cursor._query));
 
   if (typeof cursor !== 'object' || !cursor.constructor || cursor.constructor.name !== 'Cursor')
     throw new Error("useGongoLive function should return a cursor, not "
       + "not " + JSON.stringify(cursor));
 
-  let data = cursor.watch(change => {
-    debug('useGongoLive change', change);
-
-    // TODO we should be smarter about what changes to listen to
-    // but for now a simple compare will suffice
-    const next = cursor.toArraySync();
-    for (let i=0; i < next.length; i++)
-      if (data[i] !== next[i])
-        return;
-
-    data = next;
-    setData(data);
-    //setData(cursor.toArraySync())
+  let data = cursor.watch(newData => {
+    debug('useGongoLive change', newData);
+    setData(newData);
   }, { debounce: opts.debounce });
 
   return data;

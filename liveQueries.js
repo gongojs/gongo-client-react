@@ -3,48 +3,43 @@ const gongoDb = require('gongo-client');
 
 const { debug } = require('./utils');
 
-function useGongoLive(origCursorFunc, opts = {}) {
-  if (typeof origCursorFunc !== 'function')
+function useGongoLive(cursorFunc, opts = {}) {
+  if (typeof cursorFunc !== 'function')
     throw new Error("useGongoLive expects a function that returns a cursor, "
-      + "not " + JSON.stringify(origCursorFunc));
+      + "not " + JSON.stringify(cursorFunc));
 
-  const cursorFunc = origCursorFunc.bind(null, gongoDb);
-  const [cursorOrResults, setData] = useState(cursorFunc);
+  const cursor = cursorFunc.call(null, gongoDb);
+  const slug = cursor.slug();
+
+  // 1st run: cursor, 2nd run: results (from setData)
+  const [previouslySetData, setData] = useState(null);
+
   useEffect(() => {
-    return function cleanup() {
-      const cursor = cursorOrResults; // only run once, so initial value
-      cursor.unwatch();
-    }
-  }, []);
+    debug('useGongoLive ' + cursor.collection.name, JSON.stringify(cursor._query));
+
+    cursor.watch(newData => {
+      debug('useGongoLive change', newData);
+      setData(newData);
+    }, { debounce: opts.debounce });
+
+    return () => cursor.unwatch();
+  }, [ slug ]);
+
+  return previouslySetData || cursor.toArraySync();
+
+  /*
 
   // TODO, check if user supplied a func that returns an array?  run twice?
   if (Array.isArray(cursorOrResults))
     return cursorOrResults;
 
-  // This part will only get run once on mount
-
-  const cursor = cursorOrResults;
-  debug('useGongoLive ' + cursor.collection.name, JSON.stringify(cursor._query));
+  // This part will only get run once on first call, before setData called
+  return cursorOrResults.toArraySync();
 
   if (typeof cursor !== 'object' || !cursor.constructor || cursor.constructor.name !== 'Cursor')
     throw new Error("useGongoLive function should return a cursor, not "
       + "not " + JSON.stringify(cursor));
 
-  let data = cursor.watch(newData => {
-    debug('useGongoLive change', newData);
-    setData(newData);
-  }, { debounce: opts.debounce });
-
-  return data;
-
-  /*
-  const changeStream = cursor.watch();
-  changeStream.on('change', debounce(change => {
-    debug('useGongoLive change', change);
-    setData(cursor.toArraySync())
-  }, opts.debounce));
-
-  return cursor.toArraySync();
   */
 }
 

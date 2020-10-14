@@ -22,7 +22,7 @@ function useGongoLive(cursorFunc, opts = {}) {
       setData(newData);
     }, { debounce: opts.debounce });
 
-    return () => cursor.unwatch();
+    return () => setData(null) && cursor.unwatch();
   }, [ slug ]);
 
   return previouslySetData || cursor.toArraySync();

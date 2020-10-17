@@ -1,8 +1,21 @@
 {
   "name": "gongo-react",
   "version": "0.0.1",
-  "main": "index.js",
+  "author": "Gadi Cohen <dragon@wastelands.net>",
+  "description": "React hooks for GongoJS gongo-client",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gongojs/gongo-client-react"
+  },
+  "keywords": [
+    "database",
+    "realtime",
+    "offline",
+    "minimongo",
+    "react"
+  ],
+  "main": "index.js",
   "peerDependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

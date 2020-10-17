@@ -4,6 +4,10 @@
 
 Copyright(c) 2020 by Gadi Cohen <dragon@wastelands.net>.  MIT licensed.
 
+## Project
+
+Main project page https://github.com/gongojs/project
+
 ## Quickstart
 
 ```js

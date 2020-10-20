@@ -1,4 +1,5 @@
-const { default: React, useState, useEffect } = require('react');
+const React = require('react');
+const { useState, useEffect } = React;
 const gongoDb = require('gongo-client');
 
 const { debug } = require('./utils');
@@ -22,7 +23,7 @@ function useGongoLive(cursorFunc, opts = {}) {
       setData(newData);
     }, { debounce: opts.debounce });
 
-    return () => setData(null) && cursor.unwatch();
+    return function cleanUp() { setData(null); cursor.unwatch() };
   }, [ slug ]);
 
   return previouslySetData || cursor.toArraySync();

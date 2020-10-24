@@ -4,7 +4,7 @@ const gongoDb = require('gongo-client');
 
 const { debug } = require('./utils');
 
-function useGongoLive(cursorFunc, opts = {}) {
+function useGongoCursor(cursorFunc, opts = {}) {
   if (typeof cursorFunc !== 'function')
     throw new Error("useGongoLive expects a function that returns a cursor, "
       + "not " + JSON.stringify(cursorFunc));
@@ -26,22 +26,12 @@ function useGongoLive(cursorFunc, opts = {}) {
     return function cleanUp() { setData(null); cursor.unwatch() };
   }, [ slug ]);
 
-  return previouslySetData || cursor.toArraySync();
+  return /* previouslySetData || */ cursor;
+}
 
-  /*
-
-  // TODO, check if user supplied a func that returns an array?  run twice?
-  if (Array.isArray(cursorOrResults))
-    return cursorOrResults;
-
-  // This part will only get run once on first call, before setData called
-  return cursorOrResults.toArraySync();
-
-  if (typeof cursor !== 'object' || !cursor.constructor || cursor.constructor.name !== 'Cursor')
-    throw new Error("useGongoLive function should return a cursor, not "
-      + "not " + JSON.stringify(cursor));
-
-  */
+function useGongoLive(cursorFunc, opts) {
+  const cursor = useGongoCursor(cursorFunc, opts);
+  return cursor.toArraySync();
 }
 
 function useGongoOne(origCursorFunc, opts) {
@@ -59,6 +49,7 @@ function useGongoUserId(opts = {}) {
 
 module.exports = {
   __esModule: true,
+  useGongoCursor,
   useGongoLive,
   useGongoOne,
   useGongoUserId,

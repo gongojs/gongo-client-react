@@ -1,5 +1,5 @@
 const React = require('react');
-const { useState, useEffect } = React;
+const { useState, useEffect, useMemo } = React;
 const gongoDb = require('gongo-client');
 
 const { debug } = require('./utils');
@@ -9,8 +9,18 @@ function useGongoCursor(cursorFunc, opts = {}) {
     throw new Error("useGongoLive expects a function that returns a cursor, "
       + "not " + JSON.stringify(cursorFunc));
 
-  const cursor = cursorFunc.call(null, gongoDb);
-  const slug = cursor.slug();
+  // If our cursorFunc has same hash as last call,
+  // use the previously created cursor (which might have cached results).
+  const newCursor = cursorFunc.call(null, gongoDb);
+  const slug = newCursor.slug();
+  const cursor = useMemo(() => newCursor, [slug]);
+
+  // But, even if we re-use old cursor, make sure it reflects any
+  // changed skip, limit from the new cursor.
+  if (!(newCursor._skip === cursor.skip && newCursor._limit === cursor._limit)) {
+    cursor._skip = newCursor._skip;
+    cursor._limit = newCursor._limit;
+  }
 
   // 1st run: cursor, 2nd run: results (from setData)
   const [previouslySetData, setData] = useState(null);

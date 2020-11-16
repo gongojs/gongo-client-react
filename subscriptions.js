@@ -1,9 +1,24 @@
-const { default: React, useState, useEffect } = require('react');
+const { default: React, useState, useEffect, useMemo } = require('react');
 const db = require('gongo-client');
 
 const { debug } = require('./utils');
 
+function useGongoSub(name, opts) {
+  // Note: db.subscribe will return a matching existing subscription.
+  const sub = name && db.subscribe(name, opts);
+
+  useEffect(() => {
+    if (!name) return;
+    debug('sub', name, opts);
+    const newSub = db.subscribe(name, opts);
+    return () => { debug('unsub', sub); sub.stop(); };
+  }, [ sub ]);
+
+  return sub;
+}
+
 // copied from previous version, unchecked, may not work.
+/*
 function useGongoSub(gongo, name, opts) {
   const [isReady, setIsReady] = useState(false);
 
@@ -19,6 +34,7 @@ function useGongoSub(gongo, name, opts) {
 
   return isReady;
 }
+*/
 
 function useGongoIsPopulated(collection) {
   if (!collection)

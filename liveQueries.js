@@ -11,13 +11,13 @@ function useGongoCursor(cursorFunc, opts = {}) {
 
   // If our cursorFunc has same hash as last call,
   // use the previously created cursor (which might have cached results).
-  const newCursor = cursorFunc.call(null, gongoDb);
-  const slug = newCursor.slug();
+  const newCursor = cursorFunc && cursorFunc.call(null, gongoDb);
+  const slug = newCursor && newCursor.slug();
   const cursor = useMemo(() => newCursor, [slug]);
 
   // But, even if we re-use old cursor, make sure it reflects any
   // changed skip, limit from the new cursor.
-  if (!(newCursor._skip === cursor.skip && newCursor._limit === cursor._limit)) {
+  if (newCursor && !(newCursor._skip === cursor.skip && newCursor._limit === cursor._limit)) {
     cursor._skip = newCursor._skip;
     cursor._limit = newCursor._limit;
   }
@@ -28,12 +28,13 @@ function useGongoCursor(cursorFunc, opts = {}) {
   useEffect(() => {
     debug('useGongoLive ' + cursor.collection.name, JSON.stringify(cursor._query));
 
+    cursor &&
     cursor.watch(newData => {
       debug('useGongoLive change', newData);
       setData(newData);
     }, { debounce: opts.debounce });
 
-    return function cleanUp() { setData(null); cursor.unwatch() };
+    return cursor ? function cleanUp() { setData(null); cursor.unwatch() } : undefined;
   }, [ slug ]);
 
   return /* previouslySetData || */ cursor;

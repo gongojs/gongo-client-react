@@ -5,7 +5,7 @@ const gongoDb = require('gongo-client');
 const { debug } = require('./utils');
 
 function useGongoCursor(cursorFunc, opts = {}) {
-  if (typeof cursorFunc !== 'function')
+  if (cursorFunc && typeof cursorFunc !== 'function')
     throw new Error("useGongoLive expects a function that returns a cursor, "
       + "not " + JSON.stringify(cursorFunc));
 
@@ -42,7 +42,7 @@ function useGongoCursor(cursorFunc, opts = {}) {
 
 function useGongoLive(cursorFunc, opts) {
   const cursor = useGongoCursor(cursorFunc, opts);
-  return cursor.toArraySync();
+  return cursor ? cursor.toArraySync() : [];
 }
 
 function useGongoOne(origCursorFunc, opts) {

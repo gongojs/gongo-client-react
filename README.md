@@ -1,4 +1,4 @@
-# gongo-react
+# gongo-client-react
 
 *React hooks for gongo-client*
 
@@ -12,7 +12,7 @@ Main project page https://github.com/gongojs/project
 
 ```js
 import React from 'react';
-import { useGongoLive } from 'gongo-react';
+import { useGongoLive } from 'gongo-client-react';
 
 function App() {
   // That's it.  The component will update on any relevant change.

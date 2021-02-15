@@ -26,15 +26,17 @@ function useGongoCursor(cursorFunc, opts = {}) {
   const [previouslySetData, setData] = useState(null);
 
   useEffect(() => {
+    if (!cursor)
+      return;
+
     debug('useGongoLive ' + cursor.collection.name, JSON.stringify(cursor._query));
 
-    cursor &&
     cursor.watch(newData => {
       debug('useGongoLive change', newData);
       setData(newData);
     }, { debounce: opts.debounce });
 
-    return cursor ? function cleanUp() { setData(null); cursor.unwatch() } : undefined;
+    return function cleanUp() { setData(null); cursor.unwatch() };
   }, [ slug ]);
 
   return /* previouslySetData || */ cursor;

@@ -48,7 +48,9 @@ function useGongoLive(cursorFunc, opts) {
 }
 
 function useGongoOne(origCursorFunc, opts) {
-  const cursorFunc = db => origCursorFunc(db).limit(1);
+  // untested, should work, original below.  allow nullish.
+  //const cursorFunc = db => origCursorFunc(db).limit(1);
+  const cursorFunc = db => origCursorFunc && origCursorFunc(db).limit(1);
   const data = useGongoLive(cursorFunc, opts);
   return data[0];
 }

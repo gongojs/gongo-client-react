@@ -54,7 +54,7 @@ function useGongoIsPopulated(collection) {
       const update = () => {
         debug('populated', collection.name, collection.populated);
         db.idb.off('collectionsPopulated');
-        setIsPopulated(true);
+        try { setIsPopulated(true); } catch (e) { console.error(e); }
       };
       db.idb.on('collectionsPopulated', update);
       return () => db.idb.off('collectionsPopulated', update);

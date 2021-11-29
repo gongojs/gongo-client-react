@@ -18,8 +18,8 @@
   "main": "ssr.js",
   "browser": "index.js",
   "peerDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
     "gongo-client": "^0.0.1"
   }
 }

@@ -9,11 +9,11 @@ function useGongoCursor() {
 }
 
 function useGongoLive() {
-  
+  return [];
 }
 
 function useGongoOne() {
-  
+  return null;
 }
 
 function useGongoUserId() {

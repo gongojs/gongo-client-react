@@ -1,12 +1,10 @@
-const React = require('react');
+const React = require("react");
 
 //const { useGongoCursor, useGongoLive, useGongoOne, useGongoUserId } = require('./liveQueries');
 //const { useGongoSub, useGongoIsPopulated, IsPopulated } = require('./subscriptions');
-const db = require('gongo-client');
+const db = require("gongo-client");
 
-function useGongoCursor() {
-  
-}
+function useGongoCursor() {}
 
 function useGongoLive() {
   return [];
@@ -16,21 +14,13 @@ function useGongoOne() {
   return null;
 }
 
-function useGongoUserId() {
-  
-}
+function useGongoUserId() {}
 
-function useGongoSub() {
-  
-}
+function useGongoSub() {}
 
-function useGongoIsPopulated() {
-  
-}
+function useGongoIsPopulated() {}
 
-function IsPopulated() {
-  
-}
+function IsPopulated() {}
 
 module.exports = {
   __esModule: true,

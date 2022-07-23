@@ -1,13 +1,16 @@
-const React = require('react');
+const React = require("react");
 const { useState, useEffect, useMemo } = React;
-const gongoDb = require('gongo-client');
+const gongoDb = require("gongo-client");
 
-const { debug } = require('./utils');
+const { debug } = require("./utils");
 
 function useGongoCursor(cursorFunc, opts = {}) {
-  if (cursorFunc && typeof cursorFunc !== 'function')
-    throw new Error("useGongoLive expects a function that returns a cursor, "
-      + "not " + JSON.stringify(cursorFunc));
+  if (cursorFunc && typeof cursorFunc !== "function")
+    throw new Error(
+      "useGongoLive expects a function that returns a cursor, " +
+        "not " +
+        JSON.stringify(cursorFunc)
+    );
 
   // If our cursorFunc has same hash as last call,
   // use the previously created cursor (which might have cached results).
@@ -17,7 +20,10 @@ function useGongoCursor(cursorFunc, opts = {}) {
 
   // But, even if we re-use old cursor, make sure it reflects any
   // changed skip, limit from the new cursor.
-  if (newCursor && !(newCursor._skip === cursor.skip && newCursor._limit === cursor._limit)) {
+  if (
+    newCursor &&
+    !(newCursor._skip === cursor.skip && newCursor._limit === cursor._limit)
+  ) {
     cursor._skip = newCursor._skip;
     cursor._limit = newCursor._limit;
   }
@@ -26,18 +32,26 @@ function useGongoCursor(cursorFunc, opts = {}) {
   const [previouslySetData, setData] = useState(null);
 
   useEffect(() => {
-    if (!cursor)
-      return;
+    if (!cursor) return;
 
-    debug('useGongoLive ' + cursor.collection.name, JSON.stringify(cursor._query));
+    debug(
+      "useGongoLive " + cursor.collection.name,
+      JSON.stringify(cursor._query)
+    );
 
-    cursor.watch(newData => {
-      debug('useGongoLive change', newData);
-      setData(newData);
-    }, { debounce: opts.debounce });
+    cursor.watch(
+      (newData) => {
+        debug("useGongoLive change", newData);
+        setData(newData);
+      },
+      { debounce: opts.debounce }
+    );
 
-    return function cleanUp() { setData(null); cursor.unwatch() };
-  }, [ slug ]);
+    return function cleanUp() {
+      setData(null);
+      cursor.unwatch();
+    };
+  }, [slug]);
 
   return /* previouslySetData || */ cursor;
 }
@@ -50,14 +64,14 @@ function useGongoLive(cursorFunc, opts) {
 function useGongoOne(origCursorFunc, opts) {
   // untested, should work, original below.  allow nullish.
   //const cursorFunc = db => origCursorFunc(db).limit(1);
-  const cursorFunc = db => origCursorFunc && origCursorFunc(db).limit(1);
+  const cursorFunc = (db) => origCursorFunc && origCursorFunc(db).limit(1);
   const data = useGongoLive(cursorFunc, opts);
   return data[0];
 }
 
 function useGongoUserId(opts = {}) {
   const db = opts.db || gongoDb;
-  const cursorFunc = () => db.gongoStore.find({_id: 'auth'}).limit(1);
+  const cursorFunc = () => db.gongoStore.find({ _id: "auth" }).limit(1);
   const data = useGongoLive(cursorFunc, opts);
   return data[0] && data[0].userId;
 }

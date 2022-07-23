@@ -1,3 +1,8 @@
+export { default as db } from "gongo-client";
+export * from "./liveQueries";
+export * from "./subscriptions";
+
+/*
 const {
   useGongoCursor,
   useGongoLive,
@@ -24,3 +29,4 @@ module.exports = {
   useGongoIsPopulated,
   IsPopulated,
 };
+*/

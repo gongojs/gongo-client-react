@@ -1,10 +1,11 @@
-const React = require("react");
-const { useState, useEffect, useMemo } = React;
-const gongoDb = require("gongo-client");
+import React, { useState, useEffect, useMemo } from "react";
+import gongoDb, { Database, Cursor } from "gongo-client";
 
-const { debug } = require("./utils");
+import { debug } from "./utils";
 
-function useGongoCursor(cursorFunc, opts = {}) {
+type CursorFunc = (db: Database) => Cursor<unknown>;
+
+function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
   if (cursorFunc && typeof cursorFunc !== "function")
     throw new Error(
       "useGongoLive expects a function that returns a cursor, " +
@@ -76,10 +77,4 @@ function useGongoUserId(opts = {}) {
   return data[0] && data[0].userId;
 }
 
-module.exports = {
-  __esModule: true,
-  useGongoCursor,
-  useGongoLive,
-  useGongoOne,
-  useGongoUserId,
-};
+export { useGongoCursor, useGongoLive, useGongoOne, useGongoUserId };

@@ -1,7 +1,7 @@
-const { default: React, useState, useEffect, useMemo } = require("react");
-const db = require("gongo-client");
+import React, { useState, useEffect, useMemo } from "react";
+import db from "gongo-client";
 
-const { debug } = require("./utils");
+import { debug } from "./utils";
 
 function useGongoSub(name, opts) {
   // Note: db.subscribe will return a matching existing subscription.
@@ -84,9 +84,4 @@ function IsPopulated(props) {
   return isPopulated === match ? props.children : null;
 }
 
-module.exports = {
-  __esModule: true,
-  useGongoSub,
-  useGongoIsPopulated,
-  IsPopulated,
-};
+export { useGongoSub, useGongoIsPopulated, IsPopulated };

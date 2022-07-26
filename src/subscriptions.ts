@@ -1,19 +1,23 @@
-import React, { useState, useEffect, useMemo } from "react";
-import db from "gongo-client";
+import { useState, useEffect } from "react";
+import db, { Collection, Database } from "gongo-client";
+import type { Document } from "gongo-client/lib/browser/Collection";
+import type { SubscriptionOptions } from "gongo-client/lib/browser/Subscription";
 
 import { debug } from "./utils";
 
-function useGongoSub(name, opts) {
+function useGongoSub(name: string, opts: SubscriptionOptions) {
   // Note: db.subscribe will return a matching existing subscription.
-  const sub = name && db.subscribe(name, opts);
+  // const sub = name && db.subscribe(name, opts);
+  const [sub, setSub] = useState(name && db.subscribe(name, opts));
 
   useEffect(() => {
     if (!name) return;
     debug("sub", name, opts);
-    const newSub = db.subscribe(name, opts);
+    // NEW, untested, but should work `:)
+    setSub(db.subscribe(name, opts));
     return () => {
       debug("unsub", sub);
-      sub.stop();
+      sub && sub.stop();
     };
   }, [sub]);
 
@@ -39,20 +43,24 @@ function useGongoSub(gongo, name, opts) {
 }
 */
 
-function useGongoIsPopulated(collection) {
-  if (!collection) collection = db;
-  else if (typeof collection === "string")
-    collection = db.collection(collection);
+function useGongoIsPopulated(
+  collOrCollNameOrDatabase?: string | Database | Collection<Document>
+) {
+  if (!collOrCollNameOrDatabase) collOrCollNameOrDatabase = db;
+  else if (typeof collOrCollNameOrDatabase === "string")
+    collOrCollNameOrDatabase = db.collection(collOrCollNameOrDatabase);
 
-  const [isPopulated, setIsPopulated] = useState(collection.populated);
+  const [isPopulated, setIsPopulated] = useState(
+    collOrCollNameOrDatabase.populated
+  );
 
   useEffect(() => {
     if (isPopulated) return;
 
-    if (collection === db) {
+    if (collOrCollNameOrDatabase === db) {
       // the database, wait for idb collectionsPopulated event
       const update = () => {
-        debug("populated", collection.name, collection.populated);
+        debug("populated", db.name, db.populated);
         db.idb.off("collectionsPopulated");
         try {
           setIsPopulated(true);
@@ -64,6 +72,7 @@ function useGongoIsPopulated(collection) {
       return () => db.idb.off("collectionsPopulated", update);
     } else {
       // a collection, watch it.
+      const collection = collOrCollNameOrDatabase as Collection<Document>;
       const cs = collection.watch();
       cs.on("populateEnd", () => {
         debug("populated", collection.name, collection.populated);
@@ -77,11 +86,17 @@ function useGongoIsPopulated(collection) {
   return isPopulated;
 }
 
+/*
 function IsPopulated(props) {
   // TODO, could pass initTime to children for UI hints on slow loading
   const match = props.match !== false;
   const isPopulated = useGongoIsPopulated(props.collection);
   return isPopulated === match ? props.children : null;
+}
+*/
+
+function IsPopulated(...args: unknown[]) {
+  alert("IsPopulated() called with " + JSON.stringify(args));
 }
 
 export { useGongoSub, useGongoIsPopulated, IsPopulated };

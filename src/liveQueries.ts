@@ -1,11 +1,21 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import gongoDb, { Database, Cursor } from "gongo-client";
+import type { Document } from "gongo-client";
 
 import { debug } from "./utils";
 
-type CursorFunc = (db: Database) => Cursor<unknown>;
+interface useGongoCursorOpts {
+  debounce?: number;
+}
 
-function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
+type CursorFunc<DocType extends Document> = (db: Database) => Cursor<DocType>;
+
+//function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
+const useGongoCursor = <DocType extends Document>(
+  cursorFunc: CursorFunc<DocType>,
+  opts?: useGongoCursorOpts
+) => {
+  const _opts = opts || {};
   if (cursorFunc && typeof cursorFunc !== "function")
     throw new Error(
       "useGongoLive expects a function that returns a cursor, " +
@@ -23,14 +33,15 @@ function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
   // changed skip, limit from the new cursor.
   if (
     newCursor &&
-    !(newCursor._skip === cursor.skip && newCursor._limit === cursor._limit)
+    // BUG FIX from: newCursor._skip === cursor.skip (not _skip)... untested!
+    !(newCursor._skip === cursor._skip && newCursor._limit === cursor._limit)
   ) {
     cursor._skip = newCursor._skip;
     cursor._limit = newCursor._limit;
   }
 
   // 1st run: cursor, 2nd run: results (from setData)
-  const [previouslySetData, setData] = useState(null);
+  const [_previouslySetData, setData] = useState<null | Document[]>(null);
 
   useEffect(() => {
     if (!cursor) return;
@@ -43,9 +54,10 @@ function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
     cursor.watch(
       (newData) => {
         debug("useGongoLive change", newData);
+        // @ts-expect-error: XXX TODO later
         setData(newData);
       },
-      { debounce: opts.debounce }
+      { debounce: _opts.debounce }
     );
 
     return function cleanUp() {
@@ -55,25 +67,34 @@ function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
   }, [slug]);
 
   return /* previouslySetData || */ cursor;
-}
+};
 
-function useGongoLive(cursorFunc, opts) {
+//function useGongoLive(cursorFunc, opts) {
+const useGongoLive = <DocType extends Document>(
+  cursorFunc: CursorFunc<DocType>,
+  opts?: useGongoCursorOpts
+) => {
   const cursor = useGongoCursor(cursorFunc, opts);
   return cursor ? cursor.toArraySync() : [];
-}
+};
 
-function useGongoOne(origCursorFunc, opts) {
+// function useGongoOne(origCursorFunc, opts) {
+const useGongoOne = <DocType extends Document>(
+  origCursorFunc: CursorFunc<DocType>,
+  opts?: useGongoCursorOpts
+) => {
   // untested, should work, original below.  allow nullish.
   //const cursorFunc = db => origCursorFunc(db).limit(1);
-  const cursorFunc = (db) => origCursorFunc && origCursorFunc(db).limit(1);
+  const cursorFunc = (db: Database) =>
+    origCursorFunc && origCursorFunc(db).limit(1);
   const data = useGongoLive(cursorFunc, opts);
   return data[0];
-}
+};
 
-function useGongoUserId(opts = {}) {
-  const db = opts.db || gongoDb;
+function useGongoUserId(/* opts = {} */) {
+  const db = /* opts.db || */ gongoDb;
   const cursorFunc = () => db.gongoStore.find({ _id: "auth" }).limit(1);
-  const data = useGongoLive(cursorFunc, opts);
+  const data = useGongoLive(cursorFunc /*, opts */);
   return data[0] && data[0].userId;
 }
 

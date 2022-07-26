@@ -17,6 +17,7 @@
   ],
   "main": "lib/ssr.js",
   "browser": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "lint": "eslint src",
     "prettier": "prettier -w src",

@@ -1,6 +1,6 @@
 {
   "name": "gongo-client-react",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "author": "Gadi Cohen <dragon@wastelands.net>",
   "description": "React hooks for GongoJS gongo-client",
   "license": "MIT",

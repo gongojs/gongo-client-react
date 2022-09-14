@@ -1,20 +1,27 @@
 import { useState, useEffect } from "react";
 import db, { Collection, Database } from "gongo-client";
 import type { Document } from "gongo-client/lib/browser/Collection";
-import type { SubscriptionOptions } from "gongo-client/lib/browser/Subscription";
+import type {
+  SubscriptionArguments,
+  SubscriptionOptions,
+} from "gongo-client/lib/browser/Subscription";
 
 import { debug } from "./utils";
 
-function useGongoSub(name: string, opts: SubscriptionOptions) {
+function useGongoSub(
+  name: string,
+  args?: SubscriptionArguments,
+  opts?: SubscriptionOptions
+) {
   // Note: db.subscribe will return a matching existing subscription.
   // const sub = name && db.subscribe(name, opts);
-  const [sub, setSub] = useState(name && db.subscribe(name, opts));
+  const [sub, setSub] = useState(name && db.subscribe(name, args, opts));
 
   useEffect(() => {
     if (!name) return;
-    debug("sub", name, opts);
+    debug("sub", name, args, opts);
     // NEW, untested, but should work `:)
-    setSub(db.subscribe(name, opts));
+    setSub(db.subscribe(name, args, opts));
     return () => {
       debug("unsub", sub);
       sub && sub.stop();

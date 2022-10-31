@@ -85,8 +85,13 @@ const useGongoOne = <DocType extends Document>(
 ) => {
   // untested, should work, original below.  allow nullish.
   //const cursorFunc = db => origCursorFunc(db).limit(1);
-  const cursorFunc = (db: Database) =>
-    origCursorFunc && origCursorFunc(db).limit(1);
+  // const cursorFunc = (db: Database) =>
+  //  origCursorFunc && origCursorFunc(db).limit(1);
+  // 2022-10-31 dont think above ever worked but this seems to :)
+  function cursorFunc(db: Database) {
+    const cursor = origCursorFunc(db);
+    return cursor && cursor.limit(1);
+  }
   const data = useGongoLive(cursorFunc, opts);
   return data[0];
 };

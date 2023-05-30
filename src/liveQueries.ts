@@ -33,6 +33,7 @@ const useGongoCursor = <DocType extends Document>(
   // changed skip, limit from the new cursor.
   if (
     newCursor &&
+    cursor &&
     // BUG FIX from: newCursor._skip === cursor.skip (not _skip)... untested!
     !(newCursor._skip === cursor._skip && newCursor._limit === cursor._limit)
   ) {
@@ -93,7 +94,8 @@ const useGongoOne = <DocType extends Document>(
     return cursor && cursor.limit(1);
   }
   const data = useGongoLive(cursorFunc, opts);
-  return data[0];
+  if (data.length > 0) return data[0];
+  else return null;
 };
 
 function useGongoUserId(/* opts = {} */) {

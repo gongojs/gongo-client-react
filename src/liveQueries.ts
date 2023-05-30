@@ -12,7 +12,7 @@ type CursorFunc<DocType extends Document> = (db: Database) => Cursor<DocType>;
 
 //function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
 const useGongoCursor = <DocType extends Document>(
-  cursorFunc: CursorFunc<DocType>,
+  cursorFunc: CursorFunc<DocType> | null | undefined | false,
   opts?: useGongoCursorOpts
 ) => {
   const _opts = opts || {};
@@ -89,7 +89,7 @@ const useGongoOne = <DocType extends Document>(
   //  origCursorFunc && origCursorFunc(db).limit(1);
   // 2022-10-31 dont think above ever worked but this seems to :)
   function cursorFunc(db: Database) {
-    const cursor = origCursorFunc(db);
+    const cursor = origCursorFunc && origCursorFunc(db);
     return cursor && cursor.limit(1);
   }
   const data = useGongoLive(cursorFunc, opts);

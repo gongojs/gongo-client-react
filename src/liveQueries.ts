@@ -72,7 +72,7 @@ const useGongoCursor = <DocType extends Document>(
 
 //function useGongoLive(cursorFunc, opts) {
 const useGongoLive = <DocType extends Document>(
-  cursorFunc: CursorFunc<DocType>,
+  cursorFunc: Parameters<typeof useGongoCursor<DocType>>[0],
   opts?: useGongoCursorOpts
 ) => {
   const cursor = useGongoCursor(cursorFunc, opts);

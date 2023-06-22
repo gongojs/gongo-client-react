@@ -8,11 +8,13 @@ interface useGongoCursorOpts {
   debounce?: number;
 }
 
-type CursorFunc<DocType extends Document> = (db: Database) => Cursor<DocType>;
+type CursorFunc<DocType extends Document> = (
+  db: Database
+) => Cursor<DocType> | null | undefined | false | "";
 
 //function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
 const useGongoCursor = <DocType extends Document>(
-  cursorFunc: CursorFunc<DocType> | null | undefined | false,
+  cursorFunc: CursorFunc<DocType> | null | undefined | false | "",
   opts?: useGongoCursorOpts
 ) => {
   const _opts = opts || {};
@@ -42,7 +44,9 @@ const useGongoCursor = <DocType extends Document>(
   }
 
   // 1st run: cursor, 2nd run: results (from setData)
-  const [_previouslySetData, setData] = useState<null | Document[]>(null);
+  const [, /* _previouslySetData */ setData] = useState<null | Document[]>(
+    null
+  );
 
   useEffect(() => {
     if (!cursor) return;
@@ -81,7 +85,7 @@ const useGongoLive = <DocType extends Document>(
 
 // function useGongoOne(origCursorFunc, opts) {
 const useGongoOne = <DocType extends Document>(
-  origCursorFunc: CursorFunc<DocType>,
+  origCursorFunc: Parameters<typeof useGongoCursor<DocType>>[0],
   opts?: useGongoCursorOpts
 ) => {
   // untested, should work, original below.  allow nullish.

@@ -9,7 +9,7 @@ import type {
 import { debug } from "./utils";
 
 function useGongoSub(
-  name: string,
+  name: string | null | undefined | false,
   args?: SubscriptionArguments,
   opts?: SubscriptionOptions
 ) {

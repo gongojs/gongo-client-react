@@ -106,7 +106,8 @@ function useGongoUserId(/* opts = {} */) {
   const db = /* opts.db || */ gongoDb;
   const cursorFunc = () => db.gongoStore.find({ _id: "auth" }).limit(1);
   const data = useGongoLive(cursorFunc /*, opts */);
-  return data[0] && data[0].userId;
+  if (!(data && data[0])) return null;
+  return data[0].userId as string;
 }
 
 export { useGongoCursor, useGongoLive, useGongoOne, useGongoUserId };

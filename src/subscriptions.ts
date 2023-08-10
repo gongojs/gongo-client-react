@@ -21,14 +21,23 @@ function useGongoSub(
     if (!name) return;
     debug("sub", name, args, opts);
     // NEW, untested, but should work `:)
-    setSub(db.subscribe(name, args, opts));
+    setSub(name && db.subscribe(name, args, opts));
     return () => {
       debug("unsub", sub);
       sub && sub.stop();
     };
-  }, [sub]);
+  }, [name, args, opts]);
 
-  return sub;
+  return {
+    sub,
+    subscription: sub,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    loadMore: (sub && sub.loadMore.bind(sub)) || (() => {}),
+    // loading: TODO,
+    // ready: TODO,
+    // error: TODO,
+    isMore: sub && sub.lastSortedValue !== "__END__",
+  };
 }
 
 // copied from previous version, unchecked, may not work.

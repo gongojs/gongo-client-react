@@ -20,13 +20,14 @@ function useGongoSub(
   useEffect(() => {
     if (!name) return;
     debug("sub", name, args, opts);
+
     // NEW, untested, but should work `:)
     setSub(name && db.subscribe(name, args, opts));
     return () => {
       debug("unsub", sub);
       sub && sub.stop();
     };
-  }, [name, args, opts]);
+  }, [name, JSON.stringify(args), JSON.stringify(opts)]);
 
   return {
     sub,

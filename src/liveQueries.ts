@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import gongoDb, { Database, Cursor } from "gongo-client";
 import type { Document } from "gongo-client";
+import { useSession } from "next-auth/react";
 
 import { debug } from "./utils";
 
@@ -104,8 +105,17 @@ const useGongoOne = <DocType extends Document>(
 
 function useGongoUserId(/* opts = {} */) {
   const db = /* opts.db || */ gongoDb;
-  const cursorFunc = () => db.gongoStore.find({ _id: "auth" }).limit(1);
+
+  // NextAuth compat
+  const { data: session } = useSession();
+  // @ts-expect-error: this is how we do it.
+  const userId = session?.user?.id;
+
+  const cursorFunc =
+    !userId && (() => db.gongoStore.find({ _id: "auth" }).limit(1));
   const data = useGongoLive(cursorFunc /*, opts */);
+
+  if (userId) return userId;
   if (!(data && data[0])) return null;
   return data[0].userId as string;
 }

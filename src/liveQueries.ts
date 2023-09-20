@@ -106,18 +106,29 @@ const useGongoOne = <DocType extends Document>(
 function useGongoUserId(/* opts = {} */) {
   const db = /* opts.db || */ gongoDb;
 
+  const cursorFunc = () => db.gongoStore.find({ _id: "auth" }).limit(1);
+  const gongoAuth = useGongoLive(cursorFunc /*, opts */)?.[0];
+  const gongoUserId = gongoAuth?.userId;
+
   // NextAuth compat
-  const { data: session } = useSession();
-  // @ts-expect-error: this is how we do it.
-  const userId = session?.user?.id;
+  let nextUserId = null;
+  // @ts-expect-error: needs to happen in gongo-client
+  if (!db?.auth?.disableNextAuthCompat) {
+    const { data: session } = useSession();
+    nextUserId = session?.user && "id" in session.user ? session.user.id : null;
+  }
 
-  const cursorFunc =
-    !userId && (() => db.gongoStore.find({ _id: "auth" }).limit(1));
-  const data = useGongoLive(cursorFunc /*, opts */);
+  // NextAuth has preference
+  if (nextUserId && gongoUserId !== nextUserId) {
+    if (db.auth) {
+      db.auth.userId = nextUserId;
+      delete db.auth.sessionId; // no way to know nextAuth sid from client
+      delete db.auth.jwt;
+      db.auth._updateDb();
+    }
+  }
 
-  if (userId) return userId;
-  if (!(data && data[0])) return null;
-  return data[0].userId as string;
+  return nextUserId || gongoUserId || null;
 }
 
 export { useGongoCursor, useGongoLive, useGongoOne, useGongoUserId };

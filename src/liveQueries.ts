@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import gongoDb, { Database, Cursor } from "gongo-client";
 import type { Document } from "gongo-client";
 import { useSession } from "next-auth/react";
@@ -103,23 +103,26 @@ const useGongoOne = <DocType extends Document>(
   else return null;
 };
 
-function useGongoUserId(/* opts = {} */) {
+function useGongoUserId(/* opts = {} */): string | null {
   const db = /* opts.db || */ gongoDb;
 
   const cursorFunc = () => db.gongoStore.find({ _id: "auth" }).limit(1);
   const gongoAuth = useGongoLive(cursorFunc /*, opts */)?.[0];
-  const gongoUserId = gongoAuth?.userId;
+  const gongoUserId = gongoAuth?.userId ? (gongoAuth.userId as string) : null;
 
   // NextAuth compat
-  let nextUserId = null;
+  let nextUserId: string | null = null;
   // @ts-expect-error: needs to happen in gongo-client
   if (!db?.auth?.disableNextAuthCompat) {
     const { data: session } = useSession();
-    nextUserId = session?.user && "id" in session.user ? session.user.id : null;
+    nextUserId =
+      session?.user && "id" in session.user
+        ? (session.user.id as string)
+        : null;
   }
 
   // NextAuth has preference
-  if (nextUserId && gongoUserId !== nextUserId) {
+  if (nextUserId && gongoUserId && gongoUserId !== nextUserId) {
     if (db.auth) {
       db.auth.userId = nextUserId;
       delete db.auth.sessionId; // no way to know nextAuth sid from client

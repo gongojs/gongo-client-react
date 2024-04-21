@@ -1,6 +1,7 @@
 export { default as db } from "gongo-client";
 export * from "./liveQueries";
 export * from "./subscriptions";
+export { WithId, OptionalId, GongoClientDocument } from "gongo-client";
 
 /*
 const {

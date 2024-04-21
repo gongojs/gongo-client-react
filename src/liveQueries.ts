@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import gongoDb, { Database, Cursor } from "gongo-client";
-import type { Document } from "gongo-client";
+import type { GongoClientDocument } from "gongo-client";
 import { useSession } from "next-auth/react";
 
 import { debug } from "./utils";
@@ -9,12 +9,12 @@ interface useGongoCursorOpts {
   debounce?: number;
 }
 
-type CursorFunc<DocType extends Document> = (
+type CursorFunc<DocType extends GongoClientDocument> = (
   db: Database
 ) => Cursor<DocType> | null | undefined | false | "";
 
 //function useGongoCursor(cursorFunc: CursorFunc, opts = {}) {
-const useGongoCursor = <DocType extends Document>(
+const useGongoCursor = <DocType extends GongoClientDocument>(
   cursorFunc: CursorFunc<DocType> | null | undefined | false | "",
   opts?: useGongoCursorOpts
 ) => {
@@ -45,9 +45,9 @@ const useGongoCursor = <DocType extends Document>(
   }
 
   // 1st run: cursor, 2nd run: results (from setData)
-  const [, /* _previouslySetData */ setData] = useState<null | Document[]>(
-    null
-  );
+  const [, /* _previouslySetData */ setData] = useState<
+    null | GongoClientDocument[]
+  >(null);
 
   useEffect(() => {
     if (!cursor) return;
@@ -60,7 +60,6 @@ const useGongoCursor = <DocType extends Document>(
     cursor.watch(
       (newData) => {
         debug("useGongoLive change", newData);
-        // @ts-expect-error: XXX TODO later
         setData(newData);
       },
       { debounce: _opts.debounce }
@@ -76,7 +75,7 @@ const useGongoCursor = <DocType extends Document>(
 };
 
 //function useGongoLive(cursorFunc, opts) {
-const useGongoLive = <DocType extends Document>(
+const useGongoLive = <DocType extends GongoClientDocument>(
   cursorFunc: Parameters<typeof useGongoCursor<DocType>>[0],
   opts?: useGongoCursorOpts
 ) => {
@@ -85,7 +84,7 @@ const useGongoLive = <DocType extends Document>(
 };
 
 // function useGongoOne(origCursorFunc, opts) {
-const useGongoOne = <DocType extends Document>(
+const useGongoOne = <DocType extends GongoClientDocument>(
   origCursorFunc: Parameters<typeof useGongoCursor<DocType>>[0],
   opts?: useGongoCursorOpts
 ) => {

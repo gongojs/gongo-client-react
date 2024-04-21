@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import db, { Collection, Database } from "gongo-client";
-import type { Document } from "gongo-client/lib/browser/Collection";
+import type { GongoClientDocument } from "gongo-client/lib/browser/Collection";
 import type {
   SubscriptionArguments,
   SubscriptionOptions,
@@ -61,7 +61,7 @@ function useGongoSub(gongo, name, opts) {
 */
 
 function useGongoIsPopulated(
-  collOrCollNameOrDatabase?: string | Database | Collection<Document>
+  collOrCollNameOrDatabase?: string | Database | Collection<GongoClientDocument>
 ) {
   if (!collOrCollNameOrDatabase) collOrCollNameOrDatabase = db;
   else if (typeof collOrCollNameOrDatabase === "string")
@@ -89,7 +89,8 @@ function useGongoIsPopulated(
       return () => db.idb.off("collectionsPopulated", update);
     } else {
       // a collection, watch it.
-      const collection = collOrCollNameOrDatabase as Collection<Document>;
+      const collection =
+        collOrCollNameOrDatabase as Collection<GongoClientDocument>;
       const cs = collection.watch();
       cs.on("populateEnd", () => {
         debug("populated", collection.name, collection.populated);
